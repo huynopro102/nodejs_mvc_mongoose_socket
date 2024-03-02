@@ -1,5 +1,5 @@
 const pool = require("../data/connectDB");
-const { vigenereEncrypt } = require("../demoMaHoa");
+const { vigenereEncrypt ,vigenereDecrypt } = require("../demoMaHoa");
 const jwt = require("jsonwebtoken");
 
 
@@ -9,16 +9,18 @@ let login = async (req, res) => {
     const password = req.body.password;
     console.log("pass da nhap vo la ", password);
 
+    
     // Giả sử mật khẩu đã lưu trong cơ sở dữ liệu là đã được mã hóa
     const [rows, fields] = await pool.execute(
       "select * from account where email = ?",
       [username]
-    );
+      );
+
+      const mat_khau = vigenereDecrypt(rows[0].password,"KEY")
 
     if (rows.length === 1) {
-      const mahoa = vigenereEncrypt(password, "KEY");
-      console.log(rows[0].password, mahoa);
-      if (rows[0].password === mahoa) {
+      console.log(password , mat_khau)
+      if (password === mat_khau) {
         console.log("post thanh cong ");
 
         // Set cookie with the token
