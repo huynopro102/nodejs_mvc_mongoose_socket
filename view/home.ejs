@@ -1,12 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
-    <h1>Bùi Xuân Thắng</h1>
+    <h1 id="hello">Xin chào</h1>
     <button type="submit" class="signup__signInButton">Đăng xuất</button>
+
+    <script>
+        // Hàm để giải mã token
+        function decodeToken(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace('-', '+').replace('_', '/');
+            return JSON.parse(atob(base64));
+        }
+
+        // Kiểm tra xem cookie 'tokenUser' có tồn tại không
+        const hasTokenCookie = document.cookie.split(';').some((item) => item.trim().startsWith('tokenUser='));
+
+        if (hasTokenCookie) {
+            const tokenCookie = document.cookie.split(';').find((item) => item.trim().startsWith('tokenUser=')).split('=')[1];
+
+            // Giải mã cookie và hiển thị nội dung
+            const decodedToken = decodeToken(tokenCookie);
+            console.log('Nội dung giải mã từ cookie tokenUser:', decodedToken);
+            document.querySelector("#hello").innerHTML = `Xin chào ${decodedToken.email}`;
+            // Bạn có thể thực hiện các hành động tiếp theo với nội dung giải mã được ở đây
+        } else {
+            console.log('Cookie có tên là tokenUser không tồn tại.');
+            document.querySelector(".signup__signInButton").style.display = "none";
+        }
+
+        document.querySelector(".signup__signInButton").addEventListener("click", async () => {
+            try {
+                // Thực hiện POST request
+                const response = await fetch("http://localhost:3000/home", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify()
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                // Tiếp tục thực hiện các hành động tiếp theo sau khi POST thành công
+                console.log('Đã thực hiện POST thành công');
+                window.location.href = "/login";
+                
+                // ...
+
+            } catch (error) {
+                console.error('Error during fetch:', error);
+            }
+        });
+    </script>
+
 </body>
+
 </html>
