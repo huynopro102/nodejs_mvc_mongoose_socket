@@ -1,51 +1,22 @@
 const express = require('express')
 const configeFileStatic = require("./confige/staticFile")
 const configeViewEngine = require("./confige/viewEngine")
-var session = require('express-session')
+const configeDotEnv = require("./confige/dotenv")
+const configureCookieParser = require("./confige/cookieParser")
+const configureBodyParser = require("./confige/bodyParser")
+const configureSecsion = require("./confige/secsion")
+const initSocket = require("./socket")
 const path = require("path")
-const controller = require("./controllers/login-logout-home")
 const app = express()
-const cookieParser = require("cookie-parser")
-// cookie
-app.use(cookieParser())
-// Middleware parse body
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-
 // confige 
 configeViewEngine(app,path,__dirname)
 configeFileStatic(app,path,__dirname)
-
-// express-secsion
-app.set('trust proxy', 1) // trust first proxy
-app.use(session({
-  secret: 'keyboard cat',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: true }
-}))
-const port = 3000
-
-
+configeDotEnv
+configureCookieParser(app)
+configureBodyParser(app,express)
+configureSecsion(app)
 // router 
-const router = require("./router/login-logout-home")
-
-
-app.get('/home', (req, res) => {
-  res.render("home.ejs")
-})
-app.get('/login', (req, res) => {
-    res.render("login.ejs")
-})
-app.get('/signup', (req, res) => {
-    res.render("signup.ejs")
-})
-
-// router 
-app.use('/',router)
-
-
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+const routerWeb = require("./router/web") 
+app.use('/',routerWeb)
+// socket
+initSocket(app,process.env.PORT) 

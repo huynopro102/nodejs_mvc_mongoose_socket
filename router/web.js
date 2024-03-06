@@ -1,0 +1,11 @@
+const express = require("express")
+const router = express.Router()
+const controller = require("../controllers/web")
+router.post("/login",controller.login)
+router.post("/signup",controller.signup)
+router.post("/home",controller.home)
+router.get("/login",controller.getLogin)
+router.get("/signup",controller.getSignup)
+router.get("/forgotpassword",controller.getForgotPassword)
+router.get("/",controller.getHome)
+module.exports = router

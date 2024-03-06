@@ -1,12 +1,22 @@
-const mysql = require('mysql2/promise');
+const mongoose = require('mongoose');
+require("dotenv").config();
 
-  const pool =   mysql.createPool({
-      host: 'localhost',
-      user: 'root',
-      database: 'test',
-      // port: 3306,
-      // password: '',
-    });
+const URL = process.env.MONGOOSE_URL;
 
+const connectDB = async () => {
+  try {
+    const options = {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    };
 
-module.exports = pool
+    const connection = await mongoose.connect(URL, options);
+    console.log('Kết nối với MongoDB thành công');
+    return connection;  // Trả về đối tượng Mongoose đã kết nối
+  } catch (error) {
+    console.error('Lỗi khi kết nối với MongoDB:', error);
+    process.exit(1);
+  }
+};
+
+module.exports = connectDB;

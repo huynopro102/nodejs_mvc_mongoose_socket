@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
+
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -24,74 +25,49 @@
         <input type="password" class="input-signup-password" />
         <h5>Confirm Password</h5>
         <input type="password" class="input-signup-conform-password" />
+        <div>
+          <span>
+            <input type="radio" name="gender" class="radio_female"> <span>nữ</span>
+          </span> 
+          <span style="margin-left: 10px;">
+            <input type="radio" name="gender" class="radio_male"> <span>nam</span>
+          </span>
+        </div>
+
         <button type="submit" class="signup__signInButton">Đăng Ký</button>
       </form>
       <a href="http://localhost:3000/login" class="signup__registerButton">Đăng Nhập</a>
     </div>
   </div>
 </body>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+  crossorigin="anonymous"></script>
 <script>
-  let apiUser = "http://localhost:3000/signup";
-
-  //signup
-  const usernameSignup = document.querySelector(".input-signup-username");
-  const passwordSignup = document.querySelector(".input-signup-password");
-  const cfpasswordSignup = document.querySelector(".input-signup-conform-password");
-  const bntSignup = document.querySelector(".signup__signInButton");
-
-  // create user
-  const createUser = async () => {
-    try {
-      const response = await fetch(apiUser, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username: usernameSignup.value, password: passwordSignup.value, cfpassword: cfpasswordSignup.value })
-      });
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+  var socket = io();
+  $(document).ready(function () {
+    $(".signup__signInButton").click((e) => {
+      e.preventDefault()
+      const email = $(".input-signup-username")
+      const password = $(".input-signup-conform-password")
+      const cfpassword = $(".input-signup-password")
+      const radio_female = $(".radio_female")
+      const radio_male = $(".radio_male")
+      if (email.val() == "" || password.val() == "" || cfpassword.val() == "") {
+        alert("ko để trống")
+        return;
+      } else if( !radio_female.is(":checked") && !radio_male.is(":checked")){
+        alert("ko để trống nam nữ")
       }
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        // Nếu response là JSON, chuyển đổi nó thành đối tượng JSON
-        const data = await response.json();
-        return data;
-      } else {
-        const data = await response.text();
-        console.log('loi resquest');
-        return null; 
+      else {
+        if (password.val() === cfpassword.val()) {
+          socket.emit("userSubmitSignup", [email.val(), password.val(),radio_male.is(":checked") === true ? 'male' : 'female' ])
+        } else {
+          alert("password not match")
+        }
       }
-    } catch (error) {
-      console.error('Error during fetch:', error);
-      
-    }
-  };
-
-  // signup
-  bntSignup.addEventListener("click", (e) => {
-    e.preventDefault();
-    if (usernameSignup.value == "" || passwordSignup.value == "" || cfpasswordSignup.value == "") {
-      alert("Please enter all fields");
-    } else if (passwordSignup.value !== cfpasswordSignup.value) {
-      alert("Password and Confirm Password do not match");
-    } else {
-      createUser()
-        .then((data) => {
-          if (data) {
-            alert("Signup success");
-            window.location.href = "/login";
-          } else {
-            alert("Signup failed");
-          }
-        })
-        .catch((error) => {
-          console.log('Error during signup:', error);
-        });
-    }
-  });
-
+    })
+  })
 </script>
 
 </html>
